@@ -1,0 +1,9 @@
+/* Base para composição do frontend. Importe e adapte ao seu framework. */
+:root { --royal-red:#ba001d; --royal-burgundy:#240006; --royal-gold:#e9c76c; --royal-ivory:#fff1d4; }
+.queen-screen { aspect-ratio:9/16; background:var(--royal-burgundy) url('../fundos/fundo-2160x3840.webp') center/100% 100% no-repeat; color:var(--royal-ivory); position:relative; }
+.queen-button { background:linear-gradient(#e20026,#980014); border:2px solid var(--royal-gold); border-radius:12px; padding:18px 32px; color:white; font:600 1rem Arial,sans-serif; letter-spacing:.08em; cursor:pointer; }
+.queen-button-secondary { background:#120b09; }
+.queen-button:focus-visible { outline:4px solid white; outline-offset:5px; }
+.queen-title { font-family:Georgia,serif; font-weight:400; }
+.queen-style-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.queen-style-grid img { width:100%; aspect-ratio:3/4; object-fit:cover; }

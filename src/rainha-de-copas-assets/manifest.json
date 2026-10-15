@@ -1,0 +1,182 @@
+[
+  {
+    "file": "decoracao/divisor-dourado.png",
+    "width": 635,
+    "height": 310,
+    "mode": "RGBA"
+  },
+  {
+    "file": "decoracao/loading-coracao.png",
+    "width": 635,
+    "height": 716,
+    "mode": "RGBA"
+  },
+  {
+    "file": "decoracao/logo-coroa-q.png",
+    "width": 610,
+    "height": 641,
+    "mode": "RGBA"
+  },
+  {
+    "file": "decoracao/moldura-carta.png",
+    "width": 587,
+    "height": 582,
+    "mode": "RGBA"
+  },
+  {
+    "file": "fundos/fundo-1080x1920.webp",
+    "width": 1080,
+    "height": 1920,
+    "mode": "RGB"
+  },
+  {
+    "file": "fundos/fundo-2160x3840.webp",
+    "width": 2160,
+    "height": 3840,
+    "mode": "RGB"
+  },
+  {
+    "file": "fundos/fundo-original.png",
+    "width": 941,
+    "height": 1672,
+    "mode": "RGB"
+  },
+  {
+    "file": "referencias/01-inicio.png",
+    "width": 329,
+    "height": 718,
+    "mode": "RGB"
+  },
+  {
+    "file": "referencias/02-estilos.png",
+    "width": 321,
+    "height": 718,
+    "mode": "RGB"
+  },
+  {
+    "file": "referencias/03-camera.png",
+    "width": 320,
+    "height": 718,
+    "mode": "RGB"
+  },
+  {
+    "file": "referencias/04-confirmacao.png",
+    "width": 321,
+    "height": 718,
+    "mode": "RGB"
+  },
+  {
+    "file": "referencias/05-processamento.png",
+    "width": 324,
+    "height": 718,
+    "mode": "RGB"
+  },
+  {
+    "file": "referencias/06-resultado.png",
+    "width": 323,
+    "height": 718,
+    "mode": "RGB"
+  },
+  {
+    "file": "referencias/painel-aprovado.png",
+    "width": 2032,
+    "height": 774,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/anime-japones.png",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/anime-japones.webp",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/balloon-3d.png",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/balloon-3d.webp",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/caricatura.png",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/caricatura.webp",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/cartum-pixar.png",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/cartum-pixar.webp",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/funko-pop.png",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/funko-pop.webp",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/powerpuff-girls.png",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/powerpuff-girls.webp",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/realista.png",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/realista.webp",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/simpsons.png",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  },
+  {
+    "file": "retratos/simpsons.webp",
+    "width": 384,
+    "height": 512,
+    "mode": "RGB"
+  }
+]
