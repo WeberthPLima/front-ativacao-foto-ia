@@ -27,15 +27,15 @@ export function ConfirmPage() {
         <div className="portrait-card">
           <div className="queen-reference-photo">
             <div className="queen-reference-photo-inner">
-            <div className="photo-window">
-              <img src={photo.previewUrl} alt="Foto capturada" className="photo" />
-            </div>
-            <img
-              src={queenAssets.molduraCarta}
-              alt=""
-              aria-hidden="true"
-              className="frame"
-            />
+              <div className="photo-window">
+                <img src={photo.previewUrl} alt="Foto capturada" className="photo" />
+              </div>
+              <img
+                src={queenAssets.molduraCarta}
+                alt=""
+                aria-hidden="true"
+                className="frame"
+              />
             </div>
           </div>
         </div>
@@ -60,6 +60,9 @@ export function ConfirmPage() {
           ↺ Tirar novamente
         </button>
       </div>
+      <button type="button" onClick={() => navigate('/camera')} className="secondary-button">
+        Voltar
+      </button>
     </div>
   )
 }

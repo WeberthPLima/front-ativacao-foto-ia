@@ -303,7 +303,7 @@ export function CameraPage() {
               : 'Enviar foto'}
         </button>
 
-        <button
+        {/* <button
           type="button"
           onClick={() => {
             fileInputRef.current?.click()
@@ -311,7 +311,7 @@ export function CameraPage() {
           className="secondary-button"
         >
           Upload manual
-        </button>
+        </button> */}
 
         {cameraError ? (
           <div className="rounded-[16px] border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
@@ -321,6 +321,9 @@ export function CameraPage() {
       </div>
 
       <canvas ref={canvasRef} className="hidden" />
+      <button type="button" onClick={() => navigate('/estilos')} className="secondary-button">
+        Voltar
+      </button>
     </div>
   )
 }

@@ -127,6 +127,7 @@ body {
   .portrait-card {
     @apply relative overflow-hidden rounded-[20px];
     background: transparent;
+    height: 70vh;
   }
 
   .portrait-card::after {
@@ -143,6 +144,7 @@ body {
       radial-gradient(circle at 18% 78%, rgba(189, 24, 47, 0.45), transparent 20%),
       radial-gradient(circle at 80% 14%, rgba(189, 24, 47, 0.32), transparent 15%),
       radial-gradient(circle at 78% 82%, rgba(255, 212, 119, 0.16), transparent 18%);
+    height: 70vh;
   }
 
   .mock-portrait {
@@ -151,6 +153,7 @@ body {
       radial-gradient(circle at 50% 18%, rgba(255, 228, 147, 0.28), transparent 13%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 24%),
       linear-gradient(180deg, rgba(112, 12, 24, 0.82), rgba(39, 4, 8, 0.94));
+    height: 70vh;
   }
 
   .mock-portrait-face {
@@ -225,7 +228,7 @@ body {
   }
 
   .gold-chip {
-    @apply inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold;
+    @apply inline-flex items-center rounded-full border px-3 py-1 text-[81px] font-semibold;
     border-color: rgba(244, 208, 111, 0.52);
     color: #f6dfa1;
     background: rgba(255, 212, 119, 0.08);
@@ -301,12 +304,14 @@ body {
     width: 88%;
     max-width: none;
     aspect-ratio: 587 / 582;
+    /* height: 70vh; */
   }
 
   .queen-reference-photo-inner {
     position: relative;
     width: 100%;
     height: 100%;
+    height: 70vh;
   }
 
   .queen-reference-photo img.frame {
@@ -316,7 +321,7 @@ body {
   .queen-reference-photo .photo-window {
     position: absolute;
     z-index: 1;
-    inset: 12.5% 19.2% 16.5% 19.5%;
+    inset:27.5% 23.2% 28.5% 28.5%;
     overflow: hidden;
     border-radius: 14px;
   }
