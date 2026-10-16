@@ -10,27 +10,27 @@ export default defineConfig({
     },
   },
   server: {
-    host: true,
+    host: '0.0.0.0',
     port: 5173,
     strictPort: true,
     proxy: {
       '/health': {
-        target: 'http://localhost:3333',
+        target: 'http://127.0.0.1:3333',
         changeOrigin: true,
       },
       '/files': {
-        target: 'http://localhost:3333',
+        target: 'http://127.0.0.1:3333',
         changeOrigin: true,
       },
       '/v1': {
-        target: 'http://localhost:3333',
+        target: 'http://127.0.0.1:3333',
         changeOrigin: true,
       },
     },
   },
   preview: {
-    host: true,
-    port: 5173,
+    host: '0.0.0.0',
+    port: 4173,
     strictPort: true,
   },
 })

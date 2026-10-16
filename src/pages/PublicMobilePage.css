@@ -1,0 +1,42 @@
+/* The shared result is a normal document, independent of the fixed totem canvas. */
+html.public-result-active,
+html.public-result-active body,
+html.public-result-active #root {
+  height: auto;
+  min-height: 100%;
+  overflow: visible;
+}
+
+.public-result {
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  color: #fff3d7;
+  background-color: #180206;
+  background-position: center top;
+  background-size: cover;
+}
+
+.public-result__content { width: 100%; max-width: 480px; margin: 0 auto; min-width: 0; }
+.public-result__header { text-align: center; margin-bottom: 24px; }
+.public-result__crown { color: #f4d06f; font-size: 24px; letter-spacing: 8px; }
+.public-result__brand { margin: 8px 0 16px; font-size: 12px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: #f4d06f; }
+.public-result__header h1 { margin: 0 0 12px; font: 400 clamp(28px, 7vw, 38px)/1.15 Georgia, serif; text-wrap: balance; }
+.public-result__header > p:last-child { margin: 0; font-size: 15px; line-height: 1.6; color: #e9d8ba; }
+.public-result__photo { margin: 0; border: 1px solid #d3a94e; border-radius: 16px; overflow: hidden; background: #21060c; box-shadow: 0 12px 36px #0006; }
+.public-result__photo img { display: block; width: 100%; height: auto; aspect-ratio: 9/16; object-fit: contain; }
+.public-result__placeholder { aspect-ratio: 9/16; display: grid; place-items: center; padding: 24px; text-align: center; font-size: 16px; }
+.public-result__actions { display: grid; gap: 12px; margin-top: 24px; }
+.public-result__button { position: static; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 52px; padding: 14px 20px; border: 1px solid #b88b43; border-radius: 12px; font-family: inherit; font-size: 16px; font-weight: 600; line-height: 1.4; color: #fff3d7; background: #310b14; cursor: pointer; }
+.public-result__button--primary { background: linear-gradient(#e62848, #b91230); color: white; }
+.public-result__button:disabled { cursor: default; opacity: .55; }
+.public-result__button:focus-visible { outline: 3px solid #fff3d7; outline-offset: 4px; }
+.public-result__notice { margin: 16px 0 0; padding: 14px; border: 1px solid #e8c16a40; border-radius: 12px; background: #ffffff08; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.public-result__notice--error { border-color: #fb718560; background: #fb718515; color: #ffe4e6; }
+.public-result__footer { margin-top: 28px; text-align: center; font-size: 13px; line-height: 1.5; color: #d8bc86; }
+
+@media (min-width: 600px) {
+  .public-result { padding-top: 40px; padding-bottom: 40px; }
+  .public-result__actions { grid-template-columns: 1fr 1fr; }
+}

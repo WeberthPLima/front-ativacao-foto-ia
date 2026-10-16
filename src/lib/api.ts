@@ -31,6 +31,8 @@ export interface InteractionRecord {
   shareToken: string | null
   shareUrl: string | null
   originalPhotoPath: string | null
+  imageDownloadUrl?: string | null
+  cloudObjectName?: string | null
   generatedImageUrl: string | null
   storiesImageUrl: string | null
   printImageUrl: string | null
@@ -62,6 +64,7 @@ export interface InteractionStatusMeta {
 }
 
 export interface ResultMeta {
+  imageUrl?: string | null
   downloadUrl: string | null
   storiesUrl: string | null
 }
@@ -73,7 +76,18 @@ type StartInteractionBody = {
   legalNoticeVersion?: string
 }
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
+export function normalizeApiBaseUrl(configured = '') {
+  const value = configured.trim().replace(/\/$/, '')
+  if (!value) return ''
+  try {
+    const url = new URL(value)
+    // Use the frontend proxy rather than pointing a phone at its own localhost.
+    if (['localhost', '127.0.0.1', '[::1]', '0.0.0.0'].includes(url.hostname)) return ''
+  } catch { /* Relative prefixes are valid when explicitly configured. */ }
+  return value
+}
+
+const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL)
 
 async function fetchJson<T, M = undefined>(
   path: string,
@@ -101,7 +115,7 @@ async function fetchJson<T, M = undefined>(
 }
 
 export function getPublicBaseUrl() {
-  return (import.meta.env.VITE_PUBLIC_APP_URL ?? window.location.origin).replace(/\/$/, '')
+  return (import.meta.env.VITE_PUBLIC_APP_URL?.trim() || window.location.origin).replace(/\/$/, '')
 }
 
 export function buildPublicResultUrl(shareToken?: string | null, shareUrl?: string | null) {
@@ -113,14 +127,6 @@ export function buildPublicResultUrl(shareToken?: string | null, shareUrl?: stri
     return ''
   }
 
-  if (!import.meta.env.VITE_PUBLIC_APP_URL && shareUrl) {
-    try {
-      const supplied = new URL(shareUrl)
-      if (['http:', 'https:'].includes(supplied.protocol) && !['localhost', '127.0.0.1', '[::1]'].includes(supplied.hostname)) {
-        return supplied.href
-      }
-    } catch { /* Fall back to the frontend origin. */ }
-  }
   return `${getPublicBaseUrl()}/resultado/${encodeURIComponent(shareToken)}`
 }
 

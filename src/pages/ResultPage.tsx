@@ -9,13 +9,14 @@ import {
   finishInteraction,
   downloadImage,
   getStatusLabel,
+  getInteractionStatus,
   requestPrint,
   resolveRenderableUrl,
 } from '@/lib/api'
 
 export function ResultPage() {
   const navigate = useNavigate()
-  const { interaction, resetFlow } = useFlow()
+  const { interaction, resetFlow, setInteraction } = useFlow()
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [printing, setPrinting] = useState(false)
@@ -33,6 +34,23 @@ export function ResultPage() {
     navigate('/processando', { replace: true })
   }, [interaction, navigate])
 
+  const interactionId = interaction?.id
+  useEffect(() => {
+    if (!interactionId) return
+    let cancelled = false
+    const refresh = async () => {
+      try {
+        const response = await getInteractionStatus(interactionId)
+        if (!cancelled) setInteraction(response.data)
+      } catch {
+        if (!cancelled) setError('Não foi possível atualizar a imagem. Recarregue a página.')
+      }
+    }
+    void refresh()
+    const timer = window.setInterval(() => void refresh(), 45 * 60 * 1000)
+    return () => { cancelled = true; window.clearInterval(timer) }
+  }, [interactionId, setInteraction])
+
   const publicUrl = useMemo(
     () => buildPublicResultUrl(interaction?.shareToken, interaction?.shareUrl),
     [interaction?.shareToken, interaction?.shareUrl],
@@ -44,7 +62,7 @@ export function ResultPage() {
   )
 
   const handleDownload = async () => {
-    const targetUrl = resolveRenderableUrl(interaction?.generatedImageUrl) ?? publicUrl
+    const targetUrl = resolveRenderableUrl(interaction?.imageDownloadUrl ?? interaction?.generatedImageUrl) ?? publicUrl
 
     if (!targetUrl) {
       return

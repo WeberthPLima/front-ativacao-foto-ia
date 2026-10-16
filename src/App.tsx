@@ -13,9 +13,8 @@ import { StylesPage } from '@/pages/StylesPage'
 export default function App() {
   return (
     <BrowserRouter>
-      <FlowProvider>
-        <Routes>
-          <Route element={<TotemRouteShell />}>
+      <Routes>
+          <Route element={<FlowProvider><TotemRouteShell /></FlowProvider>}>
             <Route path="/" element={<InitialPage />} />
             <Route path="/estilos" element={<StylesPage />} />
             <Route path="/camera" element={<CameraPage />} />
@@ -25,8 +24,7 @@ export default function App() {
           </Route>
 
           <Route path="/resultado/:token" element={<PublicMobilePage />} />
-        </Routes>
-      </FlowProvider>
+      </Routes>
     </BrowserRouter>
   )
 }

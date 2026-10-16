@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
+import './PublicMobilePage.css'
+import { prepareShareFile, sharePhotoFile } from '@/lib/photoSharing'
+
 import { queenAssets } from '@/rainha-de-copas-assets/assets'
 import {
   getResultByToken,
@@ -17,8 +20,17 @@ export function PublicMobilePage() {
   const [meta, setMeta] = useState<ResultMeta | null>(null)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [sharing, setSharing] = useState(false)
+  const [prepared, setPrepared] = useState<{ url: string; file: File } | null>(null)
+  const [preparingShare, setPreparingShare] = useState(false)
+  const [sharePreparationError, setSharePreparationError] = useState<string | null>(null)
+  const [prepareAttempt, setPrepareAttempt] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    document.documentElement.classList.add('public-result-active')
+    return () => document.documentElement.classList.remove('public-result-active')
+  }, [])
 
   useEffect(() => {
     if (!token) {
@@ -31,6 +43,7 @@ export function PublicMobilePage() {
     let timer: number | undefined
     setInteraction(null)
     setMeta(null)
+    setLoading(true)
 
     const loadResult = async () => {
       setError(null)
@@ -44,8 +57,9 @@ export function PublicMobilePage() {
 
         setInteraction(response.data)
         setMeta(response.meta ?? null)
-        if (!['completed', 'finished', 'failed'].includes(response.data.status)) {
-          timer = window.setTimeout(() => void loadResult(), 2000)
+        if (response.data.status !== 'failed') {
+          const delay = ['completed', 'finished'].includes(response.data.status) ? 45 * 60 * 1000 : 2000
+          timer = window.setTimeout(() => void loadResult(), delay)
         }
         if (response.data.status === 'failed') setError('Não foi possível gerar esta foto.')
       } catch (currentError) {
@@ -65,108 +79,108 @@ export function PublicMobilePage() {
 
     void loadResult()
 
-  return () => {
+    return () => {
       cancelled = true
       window.clearTimeout(timer)
     }
   }, [token])
+
+  const imageUrl = resolveRenderableUrl(meta?.imageUrl ?? interaction?.generatedImageUrl)
 
   const downloadUrl = useMemo(
     () => resolveRenderableUrl(meta?.downloadUrl) ?? resolveRenderableUrl(interaction?.generatedImageUrl),
     [interaction?.generatedImageUrl, meta?.downloadUrl],
   )
 
+  useEffect(() => {
+    setPrepared(null)
+    setSharePreparationError(null)
+    if (!downloadUrl) {
+      setPreparingShare(false)
+      return
+    }
+    const controller = new AbortController()
+    setPreparingShare(true)
+    void prepareShareFile(downloadUrl, controller.signal)
+      .then((file) => { if (!controller.signal.aborted) setPrepared({ url: downloadUrl, file }) })
+      .catch((cause) => {
+        if (!controller.signal.aborted) setSharePreparationError(cause instanceof Error ? cause.message : 'Falha ao preparar a foto.')
+      })
+      .finally(() => { if (!controller.signal.aborted) setPreparingShare(false) })
+    return () => controller.abort()
+  }, [downloadUrl, prepareAttempt])
+
+  const shareFile = prepared?.url === downloadUrl ? prepared.file : null
+
   const handleShare = async () => {
-    if (!downloadUrl) return
+    if (!shareFile || sharing) return
     setSharing(true)
     setError(null)
+    setFeedback(null)
     try {
-      if (navigator.share) {
-        const response = await fetch(downloadUrl)
-        if (!response.ok) throw new Error('Não foi possível carregar a foto para compartilhar.')
-        const blob = await response.blob()
-        const extension = blob.type.includes('svg') ? 'svg' : blob.type.includes('jpeg') ? 'jpg' : 'png'
-        const file = new File([blob], `rainha-de-copas.${extension}`, { type: blob.type })
-        if (navigator.canShare?.({ files: [file] })) {
-          await navigator.share({ files: [file], title: 'Minha foto — Rainha de Copas' })
-        } else {
-          await navigator.share({ title: 'Minha foto — Rainha de Copas', url: window.location.href })
-        }
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(window.location.href)
-        setFeedback('Link copiado! Cole na conversa em que deseja compartilhar.')
-      } else {
-        setFeedback(`Copie este link para compartilhar: ${window.location.href}`)
+      const result = await sharePhotoFile(shareFile)
+      if (result === 'unsupported') {
+        setFeedback(window.isSecureContext
+          ? 'Este navegador não oferece compartilhamento de fotos. Tente abrir esta página no navegador do celular ou use Baixar foto.'
+          : 'Para compartilhar a foto, abra esta página pelo endereço HTTPS do site.')
+      } else if (result === 'cancelled') {
+        setFeedback(null)
       }
-    } catch (cause) {
-      if (!(cause instanceof Error && cause.name === 'AbortError')) {
-        setError(cause instanceof Error ? cause.message : 'Não foi possível compartilhar.')
-      }
+    } catch {
+      setError('Não foi possível abrir o compartilhamento. Use Baixar foto e selecione a imagem no aplicativo.')
     } finally {
       setSharing(false)
     }
   }
 
   return (
-    <div
-      className="kiosk-stage px-3 py-4"
-      style={{ backgroundImage: `url(${queenAssets.fundo4k})` }}
-    >
-      <div className="kiosk-shell max-w-[430px]">
-        <div className="kiosk-content">
-          <header className="queen-brand">
-            <div className="queen-brand-mark">♥ ♛ ♥</div>
-            <p className="queen-brand-title">Rainha de Copas</p>
-            <div className="ornamental-divider">♥</div>
-            <h1 className="screen-title">{downloadUrl ? 'Sua lembrança já está disponível' : 'Sua lembrança'}</h1>
-            <p className="screen-subtitle">Baixe e compartilhe sua foto no celular.</p>
-          </header>
+    <main className="public-result" style={{ backgroundImage: `linear-gradient(rgba(24, 2, 6, .84), rgba(24, 2, 6, .96)), url(${queenAssets.fundo4k})` }}>
+      <div className="public-result__content">
+        <header className="public-result__header">
+          <span className="public-result__crown" aria-hidden="true">♥ ♛ ♥</span>
+          <p className="public-result__brand">Rainha de Copas</p>
+          <h1>{imageUrl ? 'Sua lembrança ficou pronta!' : 'Sua lembrança'}</h1>
+          <p>Uma recordação do niver da Dani para guardar e compartilhar.</p>
+        </header>
 
-          <div className="mt-5 frame-panel rose-glow">
-            <div className="portrait-card overflow-hidden rounded-[18px] border border-[#f4d06f]/30">
-              {downloadUrl ? (
-                <img src={downloadUrl} alt="Prévia da mídia pública" className="aspect-[9/16] w-full object-contain" />
-              ) : (
-                <p className="p-8 text-center">{error ? 'Foto indisponível' : 'Preparando sua foto...'}</p>
-              )}
+        <figure className="public-result__photo" aria-busy={loading}>
+          {imageUrl ? (
+            <img src={imageUrl}
+              onError={() => setError('Não foi possível carregar a imagem. Recarregue a página para renovar o acesso.')}
+              alt="Sua foto com a Dani no tema Rainha de Copas" />
+          ) : (
+            <div className="public-result__placeholder" role="status">
+              {error ? 'Foto indisponível' : 'Preparando sua foto...'}
             </div>
-          </div>
+          )}
+        </figure>
 
-          <div className="mt-4 flex items-center justify-between gap-3">
-            <span className="gold-chip">{getStatusLabel(interaction?.status)}</span>
-            <span className="gold-chip">{token?.slice(0, 8) ?? 'token'}</span>
-          </div>
+        {loading ? <p className="public-result__notice" role="status">Carregando sua foto...</p> : null}
+        {!loading && interaction && !imageUrl ? (
+          <p className="public-result__notice" role="status">{getStatusLabel(interaction.status)}</p>
+        ) : null}
+        {error ? <p className="public-result__notice public-result__notice--error" role="alert">{error}</p> : null}
 
-          {loading ? (
-            <div className="mt-4 rounded-[16px] border border-white/10 bg-white/5 p-4 text-sm text-[#f7e8bc]/82">
-              Carregando sua foto...
-            </div>
-          ) : null}
-
-          {error ? (
-            <div className="mt-4 rounded-[16px] border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-100">
-              {error}
-            </div>
-          ) : null}
-
-          <div className="mt-4 grid gap-3">
-            {downloadUrl ? (
-              <button type="button" onClick={() => void downloadImage(downloadUrl).catch(() => setError('Não foi possível baixar a foto.'))} className="primary-button">
-                ⭳ Baixar foto
-              </button>
-            ) : (
-              <button type="button" disabled className="secondary-button opacity-70">
-                Download em preparação
-              </button>
-            )}
-
-            <button type="button" onClick={() => void handleShare()} disabled={!downloadUrl || sharing} className="secondary-button disabled:opacity-70">
-              {sharing ? 'Compartilhando...' : 'Compartilhar'}
-            </button>
-            {feedback ? <p className="break-words text-sm text-[#f7e8bc]">{feedback}</p> : null}
-          </div>
+        <div className="public-result__actions" aria-label="Salvar e compartilhar sua foto">
+          <button type="button" disabled={!downloadUrl}
+            onClick={() => downloadUrl && void downloadImage(downloadUrl).catch(() => setError('Não foi possível baixar a foto.'))}
+            className="public-result__button public-result__button--primary">
+            {downloadUrl ? 'Baixar foto' : 'Foto em preparação'}
+          </button>
+          <button type="button" onClick={() => void handleShare()} disabled={!shareFile || sharing}
+            className="public-result__button">
+            {sharing ? 'Compartilhando...' : preparingShare ? 'Preparando foto...' : 'Compartilhar'}
+          </button>
         </div>
+        {sharePreparationError ? (
+          <div className="public-result__notice public-result__notice--error" role="alert">
+            <p>{sharePreparationError}</p>
+            <button type="button" className="public-result__button" onClick={() => setPrepareAttempt((attempt) => attempt + 1)}>Tentar novamente</button>
+          </div>
+        ) : null}
+        {feedback ? <p className="public-result__notice" role="status">{feedback}</p> : null}
+        <footer className="public-result__footer">Niver da DANI, eu fui! ♥</footer>
       </div>
-    </div>
+    </main>
   )
 }

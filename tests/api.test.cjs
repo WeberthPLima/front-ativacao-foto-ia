@@ -24,3 +24,19 @@ test('local API images use the reachable frontend proxy', () => {
   assert.equal(resolveRenderableUrl('https://cdn.example/files/foto.png'), 'https://cdn.example/files/foto.png')
   assert.equal(buildPublicResultUrl(null, null), '')
 })
+
+
+test('QR uses the published site instead of a stale private address from the API', () => {
+  assert.equal(buildPublicResultUrl('secret', 'http://192.168.1.3:5173/resultado/secret'), 'https://festa.example/resultado/secret')
+})
+
+test('direct signed Google image URL is not rewritten to the local API', () => {
+  const cloudUrl = 'https://storage.googleapis.com/interacoes_testes/ativacao/photo.png?X-Goog-Signature=abc'
+  assert.equal(resolveRenderableUrl(cloudUrl), cloudUrl)
+})
+
+test('localhost API configuration uses the frontend proxy on any device', () => {
+  const normalize = api.exports.normalizeApiBaseUrl
+  for (const url of ['http://localhost:3333', 'http://127.0.0.1:3333', 'http://[::1]:3333', '']) assert.equal(normalize(url), '')
+  assert.equal(normalize(' https://api.example/ '), 'https://api.example')
+})
