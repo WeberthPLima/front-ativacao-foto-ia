@@ -30,7 +30,7 @@ export function TotemShell({
               src={queenAssets.divisorDourado}
               alt=""
               aria-hidden="true"
-              className="mx-auto mt-2 h-auto w-[clamp(92px,18vw,220px)] object-contain opacity-90"
+              className="mx-auto mt-[-10px] h-auto w-[clamp(92px,18vw,0px)] object-contain opacity-90"
             />
             <h1 className="screen-title">{title}</h1>
             <p className="screen-subtitle">{subtitle}</p>

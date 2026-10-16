@@ -75,11 +75,11 @@ export function StylesPage() {
                       className="h-full min-h-[60px] w-full object-cover"
                     />
                   </div>
-                  <p className="mt-1.5 rounded-[8px] bg-black/55 px-2 py-1 text-center text-[50px] font-semibold text-white">
+                  <p className="mt-1.5 rounded-[8px] bg-black/55 px-2 py-1 text-center text-[20px] font-semibold text-white">
                     {style.name}
                   </p>
                   {isSubmitting ? (
-                    <p className="mt-1 text-center text-[60px] text-[#f7e8bc]/85">Salvando...</p>
+                    <p className="mt-1 text-center text-[8px] text-[#f7e8bc]/85">Salvando...</p>
                   ) : null}
                 </button>
               )
