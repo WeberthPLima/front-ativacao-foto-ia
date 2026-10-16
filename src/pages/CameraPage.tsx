@@ -35,6 +35,7 @@ export function CameraPage() {
       return
     }
 
+    let cancelled = false
     const startCamera = async () => {
       if (!navigator.mediaDevices?.getUserMedia) {
         setCameraState('unsupported')
@@ -52,6 +53,10 @@ export function CameraPage() {
           },
         })
 
+        if (cancelled) {
+          stream.getTracks().forEach((track) => track.stop())
+          return
+        }
         streamRef.current = stream
 
         if (videoRef.current) {
@@ -74,6 +79,7 @@ export function CameraPage() {
     void startCamera()
 
     return () => {
+      cancelled = true
       if (countdownTimerRef.current) {
         window.clearInterval(countdownTimerRef.current)
       }
@@ -216,15 +222,14 @@ export function CameraPage() {
       <div className="frame-panel rose-glow">
         <div className="portrait-card relative overflow-hidden">
           <div className="relative min-h-[448px] rounded-[18px] border border-[#f4d06f]/35">
-            {cameraState === 'ready' ? (
-              <video
+            <video
                 ref={videoRef}
                 autoPlay
                 muted
                 playsInline
-                className="h-full min-h-[448px] w-full object-cover"
+                className={`h-full min-h-[448px] w-full object-cover ${cameraState === 'ready' ? '' : 'hidden'}`}
               />
-            ) : photo ? (
+            {cameraState === 'ready' ? null : photo ? (
               <img
                 src={photo.previewUrl}
                 alt="Prévia da foto selecionada"

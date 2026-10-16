@@ -28,9 +28,12 @@ export interface InteractionRecord {
   stationSlug: string
   status: InteractionStatus
   styleId: string | null
-  shareToken: string
-  shareUrl: string
+  shareToken: string | null
+  shareUrl: string | null
   originalPhotoPath: string | null
+  generatedImageUrl: string | null
+  storiesImageUrl: string | null
+  printImageUrl: string | null
   generatedImagePath: string | null
   storiesImagePath: string | null
   printImagePath: string | null
@@ -102,7 +105,7 @@ export function getPublicBaseUrl() {
 }
 
 export function buildPublicResultUrl(shareToken?: string | null, shareUrl?: string | null) {
-  if (shareUrl) {
+  if (shareUrl && !shareToken) {
     return shareUrl
   }
 
@@ -110,7 +113,15 @@ export function buildPublicResultUrl(shareToken?: string | null, shareUrl?: stri
     return ''
   }
 
-  return `${getPublicBaseUrl()}/resultado/${shareToken}`
+  if (!import.meta.env.VITE_PUBLIC_APP_URL && shareUrl) {
+    try {
+      const supplied = new URL(shareUrl)
+      if (['http:', 'https:'].includes(supplied.protocol) && !['localhost', '127.0.0.1', '[::1]'].includes(supplied.hostname)) {
+        return supplied.href
+      }
+    } catch { /* Fall back to the frontend origin. */ }
+  }
+  return `${getPublicBaseUrl()}/resultado/${encodeURIComponent(shareToken)}`
 }
 
 export function resolveRenderableUrl(url?: string | null) {
@@ -118,12 +129,20 @@ export function resolveRenderableUrl(url?: string | null) {
     return null
   }
 
+  // Local API defaults must remain reachable when opened from another device.
+  if (/^https?:\/\//.test(url)) {
+    const parsed = new URL(url)
+    if (['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname) && parsed.pathname.startsWith('/files/')) {
+      return `${API_BASE_URL || window.location.origin}${parsed.pathname}${parsed.search}`
+    }
+  }
+
   if (/^blob:|^data:|^https?:\/\//.test(url)) {
     return url
   }
 
   if (url.startsWith('/')) {
-    return `${getPublicBaseUrl()}${url}`
+    return `${API_BASE_URL || window.location.origin}${url}`
   }
 
   return null
@@ -236,4 +255,26 @@ export async function finishInteraction(interactionId: string) {
   return fetchJson<InteractionRecord>(`/v1/interactions/${interactionId}/finish`, {
     method: 'POST',
   })
+}
+
+export async function downloadImage(url: string) {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error('Não foi possível baixar a foto.')
+  const blob = await response.blob()
+  const objectUrl = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = objectUrl
+  link.download = `rainha-de-copas.${blob.type.includes('svg') ? 'svg' : blob.type.includes('jpeg') ? 'jpg' : 'png'}`
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 10000)
+}
+
+export function mergeInteraction(current: InteractionRecord | null, next: InteractionRecord | null) {
+  return next && current?.id === next.id ? {
+    ...next,
+    shareToken: next.shareToken ?? current.shareToken,
+    shareUrl: next.shareUrl ?? current.shareUrl,
+  } : next
 }

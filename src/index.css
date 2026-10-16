@@ -346,4 +346,12 @@ body {
     line-height: 1.45;
     color: rgba(247, 232, 188, 0.88);
   }
+  .scanear-card {
+    position: absolute;
+    top: 15rem;
+    right: 0;
+    /* transform: translateX(-20%); */
+    width: 30vw;
+    scale: 0.7;
+  }
 }

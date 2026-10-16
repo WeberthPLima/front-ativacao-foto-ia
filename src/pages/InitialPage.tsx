@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useFlow } from '@/context/FlowContext'
-import { queenAssets, rainha, queenFallbackPortrait } from '@/rainha-de-copas-assets/assets'
+import { queenAssets, queenFallbackPortrait } from '@/rainha-de-copas-assets/assets'
 
 export function InitialPage() {
   const navigate = useNavigate()

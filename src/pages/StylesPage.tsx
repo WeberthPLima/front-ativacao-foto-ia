@@ -16,20 +16,16 @@ export function StylesPage() {
 
     try {
       await selectStyle(styleId)
+      navigate('/camera')
     } catch (currentError) {
       setError(
         currentError instanceof Error
           ? currentError.message
           : 'Não foi possível registrar o estilo selecionado.',
       )
-      alert(
-        currentError instanceof Error
-          ? currentError.message
-          : 'Não foi possível registrar o estilo selecionado.',
-      )
+
     } finally {
       setSubmittingId(null)
-      navigate('/camera')
     }
   }
 

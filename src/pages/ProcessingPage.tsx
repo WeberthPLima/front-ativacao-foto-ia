@@ -10,15 +10,14 @@ import {
   getStatusLabel,
 } from '@/lib/api'
 
-const AUTO_ADVANCE_AFTER_MS = 9000
-
 export function ProcessingPage() {
   const navigate = useNavigate()
   const { interaction, photo, processingMeta, selectedStyleId, setInteraction, setProcessingMeta } =
     useFlow()
   const [error, setError] = useState<string | null>(null)
   const [elapsedMs, setElapsedMs] = useState(0)
-  const generationRequestedRef = useRef(false)
+  const generationRequest = useRef<ReturnType<typeof generateInteraction> | null>(null)
+  const [attempt, setAttempt] = useState(0)
   const interactionId = interaction?.id
   const interactionStatus = interaction?.status
   const currentStatus = interactionStatus ?? 'started'
@@ -34,7 +33,7 @@ export function ProcessingPage() {
       return
     }
 
-    if (!photo) {
+    if (!photo && !['queued', 'processing', 'completed', 'finished'].includes(interaction.status)) {
       navigate('/camera', { replace: true })
     }
   }, [interaction, navigate, photo, selectedStyleId])
@@ -49,98 +48,68 @@ export function ProcessingPage() {
   }, [])
 
   useEffect(() => {
-    if (!interactionId || !photo) {
+    if (!interactionId) {
       return
     }
 
     let cancelled = false
-    let intervalId: number | null = null
+    let timer: number | undefined
 
-    const syncStatus = async () => {
-      const response = await getInteractionStatus(interactionId)
-
-      if (cancelled) {
-        return
+    const acceptStatus = (record: NonNullable<typeof interaction>) => {
+      setInteraction(record)
+      if (record.status === 'failed') {
+        setError('Não foi possível gerar sua foto. Tente novamente.')
+        return true
       }
-
-      setInteraction(response.data)
-      setProcessingMeta(response.meta ?? null)
-
-      const shouldGoToResult =
-        ['completed', 'failed', 'finished'].includes(response.data.status) ||
-        (Date.now() - pollingStartedAt >= AUTO_ADVANCE_AFTER_MS && Boolean(response.data.shareToken))
-
-      if (shouldGoToResult) {
-        if (intervalId) {
-          window.clearInterval(intervalId)
-        }
-
+      if (['completed', 'finished'].includes(record.status) && record.generatedImageUrl) {
         navigate('/final', { replace: true })
+        return true
       }
+      return false
     }
 
-    const pollingStartedAt = Date.now()
+    const poll = async () => {
+      try {
+        const response = await getInteractionStatus(interactionId)
+        if (cancelled) return
+        setProcessingMeta(response.meta ?? null)
+        setError(null)
+        if (acceptStatus(response.data)) return
+      } catch (currentError) {
+        if (cancelled) return
+        setError(currentError instanceof Error ? currentError.message : 'Falha ao consultar o andamento.')
+      }
+      if (!cancelled) timer = window.setTimeout(() => void poll(), 2000)
+    }
 
     const bootstrap = async () => {
       try {
-        if (
-          !generationRequestedRef.current &&
-          !['queued', 'processing', 'completed', 'failed', 'finished'].includes(currentStatus)
-        ) {
-          generationRequestedRef.current = true
-
-          const response = await generateInteraction(interactionId, {
+        // Reuse the in-flight promise when StrictMode replays this effect.
+        if (photo && !generationRequest.current && !['queued', 'processing', 'completed', 'finished'].includes(currentStatus)) {
+          generationRequest.current = generateInteraction(interactionId, {
             originalPhotoFileName: photo.fileName,
             originalPhotoDataUrl: photo.dataUrl,
           })
-
-          if (cancelled) {
-            return
-          }
-
-          setInteraction(response.data)
         }
-
-        await syncStatus()
-
-        intervalId = window.setInterval(() => {
-          void syncStatus().catch((currentError) => {
-            if (!cancelled) {
-              setError(
-                currentError instanceof Error
-                  ? currentError.message
-                  : 'Falha ao consultar o andamento.',
-              )
-            }
-          })
-        }, 2000)
+        if (generationRequest.current) {
+          const response = await generationRequest.current
+          if (cancelled) return
+          if (acceptStatus(response.data)) return
+        }
+        if (!cancelled) await poll()
       } catch (currentError) {
         if (!cancelled) {
-          setError(
-            currentError instanceof Error
-              ? currentError.message
-              : 'Falha ao iniciar o processamento da foto.',
-          )
+          setError(currentError instanceof Error ? currentError.message : 'Falha ao gerar sua foto.')
         }
       }
     }
-
     void bootstrap()
-
     return () => {
       cancelled = true
-
-      if (intervalId) {
-        window.clearInterval(intervalId)
-      }
+      window.clearTimeout(timer)
     }
-  }, [
-    interactionId,
-    navigate,
-    photo,
-    setInteraction,
-    setProcessingMeta,
-  ])
+  }, [interactionId, navigate, photo, setInteraction, setProcessingMeta, attempt])
+
 
   const baseProgress = useMemo(
     () => getProgressFromStatus(interaction?.status) + Math.min(12, Math.floor(elapsedMs / 1500)),
@@ -189,6 +158,11 @@ export function ProcessingPage() {
       {error ? (
         <div className="mt-4 w-full rounded-[16px] border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
           {error}
+          <button type="button" className="secondary-button mt-3" onClick={() => {
+            generationRequest.current = null
+            setError(null)
+            setAttempt((value) => value + 1)
+          }}>Tentar novamente</button>
         </div>
       ) : null}
     </div>

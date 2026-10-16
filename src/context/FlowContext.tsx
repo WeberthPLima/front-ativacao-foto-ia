@@ -11,6 +11,7 @@ import {
 import {
   chooseInteractionStyle,
   listStyles,
+  mergeInteraction,
   startInteraction,
   type InteractionRecord,
   type InteractionStatusMeta,
@@ -54,10 +55,27 @@ export function FlowProvider({ children }: PropsWithChildren) {
   const [styles, setStyles] = useState<StylePreset[]>([])
   const [stylesLoading, setStylesLoading] = useState(false)
   const [stylesError, setStylesError] = useState<string | null>(null)
-  const [interaction, setInteraction] = useState<InteractionRecord | null>(null)
-  const [selectedStyleId, setSelectedStyleId] = useState<string | null>(null)
+  const [interaction, setInteractionState] = useState<InteractionRecord | null>(() => {
+    try {
+      const saved = sessionStorage.getItem('rainha-interaction')
+      return saved ? JSON.parse(saved) as InteractionRecord : null
+    } catch { return null }
+  })
+  const [selectedStyleId, setSelectedStyleId] = useState<string | null>(interaction?.styleId ?? null)
   const [photo, setPhotoState] = useState<PhotoCapture | null>(null)
   const [processingMeta, setProcessingMeta] = useState<InteractionStatusMeta | null>(null)
+
+  useEffect(() => {
+    try {
+      if (interaction) sessionStorage.setItem('rainha-interaction', JSON.stringify(interaction))
+      else sessionStorage.removeItem('rainha-interaction')
+    } catch { /* The flow also works with browser storage disabled. */ }
+  }, [interaction])
+
+  // Only session creation returns the raw share token; later responses contain null.
+  const setInteraction = useCallback((next: InteractionRecord | null) => {
+    setInteractionState((current) => mergeInteraction(current, next))
+  }, [])
 
   const ensureStylesLoaded = useCallback(async () => {
     if (styles.length > 0) {
