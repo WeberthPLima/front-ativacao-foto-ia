@@ -123,7 +123,7 @@ export function ProcessingPage() {
 
   return (
     <div className="screen-body items-center justify-center">
-      <div className="relative mx-auto mt-6 flex h-[230px] w-[230px] items-center justify-center">
+      <div className="relative mx-auto flex h-[20vh] w-[20vh] items-center justify-center">
         <div className="absolute inset-0 rounded-full border border-[#f4d06f]/30" />
         <div className="absolute inset-[14px] rounded-full border border-[#f4d06f]/50" />
         <div className="absolute inset-[28px] rounded-full border border-[#f4d06f]/20" />
@@ -135,11 +135,11 @@ export function ProcessingPage() {
       </div>
 
       <div className="mt-5 w-full text-center">
-        <p className="serif-display text-[22px] text-[#fff5d7]">Criando sua versão encantada</p>
-        <p className="mt-2 text-[15px] text-[#f7e8bc]/82">A magia está acontecendo...</p>
+        <p className="serif-display text-[80px] text-[#fff5d7]">Criando sua versão encantada</p>
+        <p className="mt-2 text-[55px] text-[#f7e8bc]/82">A magia está acontecendo...</p>
       </div>
 
-      <div className="mt-4 flex items-center justify-center gap-4 text-[20px] text-[#f4d06f]">
+      <div className="mt-4 flex items-center justify-center gap-4 text-[50px] text-[#f4d06f]">
         <span className={progress > 20 ? 'opacity-100' : 'opacity-30'}>♥</span>
         <span className={progress > 55 ? 'opacity-100' : 'opacity-30'}>♡</span>
         <span className={progress > 80 ? 'opacity-100' : 'opacity-30'}>♡</span>
@@ -153,6 +153,11 @@ export function ProcessingPage() {
 
       <p className="mt-2 text-center text-[12px] uppercase tracking-[0.22em] text-[#d7af54]">
         {getStatusLabel(interaction?.status)}
+      </p>
+
+      <p className="mt-2 text-center text-[52px] uppercase tracking-[0.22em] text-[#d7af54]" style={{ marginBottom: '57rem' }}>
+        Isso pode demorar alguns minutos! <br />
+        Estamos gerando sua imagem
       </p>
 
       {error ? (
