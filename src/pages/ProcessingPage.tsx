@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useFlow } from '@/context/FlowContext'
@@ -6,18 +6,16 @@ import { queenAssets } from '@/rainha-de-copas-assets/assets'
 import {
   generateInteraction,
   getInteractionStatus,
-  getProgressFromStatus,
-  getStatusLabel,
 } from '@/lib/api'
 
 export function ProcessingPage() {
   const navigate = useNavigate()
-  const { interaction, photo, processingMeta, selectedStyleId, setInteraction, setProcessingMeta } =
+  const { interaction, photo, selectedStyleId, setInteraction, setProcessingMeta, resetFlow } =
     useFlow()
   const [error, setError] = useState<string | null>(null)
-  const [elapsedMs, setElapsedMs] = useState(0)
+  const [animationStep, setAnimationStep] = useState(0)
+  const animationLabels = ['Estilo confirmado', 'Imagem capturada', 'Processando imagem']
   const generationRequest = useRef<ReturnType<typeof generateInteraction> | null>(null)
-  const [attempt, setAttempt] = useState(0)
   const interactionId = interaction?.id
   const interactionStatus = interaction?.status
   const currentStatus = interactionStatus ?? 'started'
@@ -39,11 +37,9 @@ export function ProcessingPage() {
   }, [interaction, navigate, photo, selectedStyleId])
 
   useEffect(() => {
-    const startedAt = Date.now()
     const timer = window.setInterval(() => {
-      setElapsedMs(Date.now() - startedAt)
-    }, 500)
-
+      setAnimationStep(step => (step + 1) % 3)
+    }, 1000)
     return () => window.clearInterval(timer)
   }, [])
 
@@ -108,18 +104,15 @@ export function ProcessingPage() {
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [interactionId, navigate, photo, setInteraction, setProcessingMeta, attempt])
+  }, [interactionId, navigate, photo, setInteraction, setProcessingMeta])
 
 
-  const baseProgress = useMemo(
-    () => getProgressFromStatus(interaction?.status) + Math.min(12, Math.floor(elapsedMs / 1500)),
-    [elapsedMs, interaction?.status],
-  )
+  const canRestart = Boolean(error) || currentStatus === 'failed' || currentStatus === 'queued'
 
-  const progress = Math.min(
-    interaction?.status === 'completed' ? 100 : interaction?.status === 'failed' ? 100 : 94,
-    baseProgress,
-  )
+  const handleRestart = () => {
+    resetFlow()
+    navigate('/', { replace: true })
+  }
 
   return (
     <div className="screen-body items-center justify-center" style={{ marginTop: '5rem' }}>
@@ -140,23 +133,19 @@ export function ProcessingPage() {
         <p className="mt-2 text-[30px] text-[#f7e8bc]/82">A magia está acontecendo...</p>
       </div>
 
-      <div className="mt-4 flex items-center justify-center gap-4 text-[20px] text-[#f4d06f]">
-        <span className={progress > 20 ? 'opacity-100' : 'opacity-30'}>♥</span>
-        <span className={progress > 55 ? 'opacity-100' : 'opacity-30'}>♡</span>
-        <span className={progress > 80 ? 'opacity-100' : 'opacity-30'}>♡</span>
+      <div aria-hidden="true" className="mt-4 flex items-center justify-center gap-4 text-[20px] text-[#f4d06f]">
+        {[0, 1, 2].map(index => (
+          <span key={index} className={`transition-opacity duration-300 ${index <= animationStep ? 'opacity-100' : 'opacity-30'}`}>
+            {index <= animationStep ? '♥' : '♡'}
+          </span>
+        ))}
       </div>
 
-      {processingMeta?.events?.length ? (
-        <p className="mt-6 text-center text-[12px] text-[#f7e8bc]/68">
-          Último evento: {processingMeta.events[processingMeta.events.length - 1]?.eventType}
-        </p>
-      ) : null}
-
       <p className="mt-2 text-center text-[12px] uppercase tracking-[0.22em] text-[#d7af54]">
-        {getStatusLabel(interaction?.status)}
+        {animationLabels[animationStep]}
       </p>
 
-      <p className="mt-2 text-center text-[20px] uppercase tracking-[0.22em] text-[#d7af54]" style={{ marginBottom: '57rem' }}>
+      <p className="mt-2 text-center text-[20px] uppercase tracking-[0.22em] text-[#d7af54]">
         Isso pode demorar alguns minutos! <br />
         Estamos gerando sua imagem
       </p>
@@ -164,12 +153,10 @@ export function ProcessingPage() {
       {error ? (
         <div className="mt-4 w-full rounded-[16px] border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
           {error}
-          <button type="button" className="secondary-button mt-3" onClick={() => {
-            generationRequest.current = null
-            setError(null)
-            setAttempt((value) => value + 1)
-          }}>Tentar novamente</button>
         </div>
+      ) : null}
+      {canRestart ? (
+        <button type="button" className="secondary-button mt-4" onClick={handleRestart}>Recomeçar</button>
       ) : null}
     </div>
   )
