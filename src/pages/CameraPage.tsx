@@ -200,9 +200,9 @@ export function CameraPage() {
     }
 
     setProcessingCapture(true)
-    setCountdown(3)
+    setCountdown(5)
 
-    let remaining = 3
+    let remaining = 5
     countdownTimerRef.current = window.setInterval(() => {
       remaining -= 1
       if (remaining > 0) { setCountdown(remaining); return }
