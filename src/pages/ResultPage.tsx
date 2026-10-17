@@ -191,7 +191,7 @@ export function ResultPage() {
 
       <div className="screen-card scanear-card flex flex-col items-center justify-center bg-white p-2">
         {publicUrl && previewUrl ? <QRCode value={publicUrl} size={94} className="h-auto w-full" /> : null}
-        <p className="mt-2 text-center text-[50px] font-semibold text-[#8f1320]">
+        <p className="mt-2 text-center text-[20px] font-semibold text-[#8f1320]">
           Escaneie para baixar e compartilhar
         </p>
       </div>

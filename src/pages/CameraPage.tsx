@@ -157,6 +157,8 @@ export function CameraPage() {
       return
     }
 
+    context.translate(canvas.width, 0)
+    context.scale(-1, 1)
     context.drawImage(video, 0, 0, canvas.width, canvas.height)
 
     canvas.toBlob(
@@ -263,6 +265,7 @@ export function CameraPage() {
               muted
               playsInline
               className={`absolute inset-0 h-full min-h-[448px] w-full rounded-[18px] object-cover ${cameraState === 'ready' ? '' : 'hidden'}`}
+              style={{ transform: 'scaleX(-1) scale(0.5)' }}
             />
             {cameraState === 'ready' ? null : photo ? (
               <img
@@ -288,7 +291,7 @@ export function CameraPage() {
             )}
 
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
-              <div className="h-[84%] w-full max-w-[300px] rounded-[30px] border-[3px] border-[#f4d06f] shadow-[0_0_0_999px_rgba(14,1,4,0.24)]" />
+              <div className="h-[42%] w-1/2 max-w-[150px] rounded-[30px] border-[3px] border-[#f4d06f] shadow-[0_0_0_999px_rgba(14,1,4,0.24)]" />
             </div>
 
             <img
@@ -346,11 +349,11 @@ export function CameraPage() {
           className="hidden"
         />
 
-        <button
+        {/* <button
           type="button"
           onClick={handleCapture}
           className="primary-button"
-          disabled={processingCapture || cameraState === 'idle'}
+          disabled={processingCapture}
         >
           {cameraState === 'ready'
             ? processingCapture
@@ -359,18 +362,17 @@ export function CameraPage() {
             : photo
               ? 'Usar foto enviada'
               : 'Enviar foto'}
-        </button>
+        </button> */}
 
-        <button
+        {/* <button
           type="button"
           onClick={() => {
             fileInputRef.current?.click()
           }}
           className="secondary-button"
-          disabled={processingCapture}
         >
           Upload manual
-        </button>
+        </button> */}
 
         {cameraError ? (
           <div className="rounded-[16px] border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
@@ -379,9 +381,8 @@ export function CameraPage() {
         ) : null}
       </div>
 
-      {cameraState === 'blocked' ? <button type="button" className="secondary-button" onClick={() => setCameraAttempt(attempt => attempt + 1)}>Tentar novamente</button> : null}
       <canvas ref={canvasRef} className="hidden" />
-      <button type="button" onClick={() => navigate('/estilos')} disabled={processingCapture} className="secondary-button">
+      <button type="button" onClick={() => navigate('/estilos')} className="secondary-button">
         Voltar
       </button>
     </div>
