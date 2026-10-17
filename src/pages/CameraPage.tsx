@@ -290,9 +290,9 @@ export function CameraPage() {
               </div>
             )}
 
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
+            {/* <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
               <div className="h-[42%] w-1/2 max-w-[150px] rounded-[30px] border-[3px] border-[#f4d06f] shadow-[0_0_0_999px_rgba(14,1,4,0.24)]" />
-            </div>
+            </div> */}
 
             <img
               src={queenAssets.logoCoroaQ}
