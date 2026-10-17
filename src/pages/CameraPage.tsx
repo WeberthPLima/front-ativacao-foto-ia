@@ -349,7 +349,7 @@ export function CameraPage() {
           className="hidden"
         />
 
-        {/* <button
+        <button
           type="button"
           onClick={handleCapture}
           className="primary-button"
@@ -362,7 +362,7 @@ export function CameraPage() {
             : photo
               ? 'Usar foto enviada'
               : 'Enviar foto'}
-        </button> */}
+        </button>
 
         {/* <button
           type="button"
